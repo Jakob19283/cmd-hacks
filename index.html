@@ -2,155 +2,207 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>Shadow Terminal Hub</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<title>Shadow Terminal v2</title>
 <style>
-    body {
-        margin: 0;
-        font-family: 'Courier New', monospace;
-        background: radial-gradient(circle at top, #0d0d0d, #000000);
-        color: #00ff9d;
-        overflow-x: hidden;
-    }
+body {
+    margin:0;
+    background:black;
+    color:#00ff9d;
+    font-family: monospace;
+}
 
-    header {
-        text-align: center;
-        padding: 40px;
-        font-size: 28px;
-        letter-spacing: 3px;
-        text-shadow: 0 0 15px #00ff9d;
-    }
+#terminal {
+    padding:20px;
+    height:100vh;
+    overflow-y:auto;
+}
 
-    .container {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 20px;
-        padding: 20px;
-    }
+input {
+    background:black;
+    border:none;
+    color:#00ff9d;
+    outline:none;
+    font-family: monospace;
+    width:80%;
+}
 
-    .card {
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(0,255,157,0.3);
-        padding: 15px;
-        border-radius: 12px;
-        backdrop-filter: blur(8px);
-        box-shadow: 0 0 20px rgba(0,255,157,0.1);
-        transition: 0.3s;
-    }
+.line {
+    margin:5px 0;
+}
 
-    .card:hover {
-        transform: scale(1.05);
-        box-shadow: 0 0 25px rgba(0,255,157,0.4);
-    }
+.prompt {
+    color:#00ff9d;
+}
 
-    button {
-        background: black;
-        color: #00ff9d;
-        border: 1px solid #00ff9d;
-        padding: 10px;
-        width: 100%;
-        cursor: pointer;
-        border-radius: 8px;
-        transition: 0.2s;
-    }
-
-    button:hover {
-        background: #00ff9d;
-        color: black;
-    }
-
-    .output {
-        margin-top: 10px;
-        font-size: 12px;
-        opacity: 0.8;
-        word-break: break-word;
-    }
-
-    .glow {
-        position: fixed;
-        width: 300px;
-        height: 300px;
-        background: #00ff9d;
-        filter: blur(120px);
-        top: -100px;
-        left: -100px;
-        opacity: 0.2;
-    }
+#matrix {
+    position:fixed;
+    top:0;
+    left:0;
+    z-index:-1;
+    opacity:0.15;
+}
 </style>
 </head>
-
 <body>
 
-<div class="glow"></div>
+<canvas id="matrix"></canvas>
 
-<header>⚡ SHADOW TERMINAL HUB ⚡</header>
+<div id="terminal">
+    <div class="line">Shadow Terminal v2 gestartet... tippe <b>help</b></div>
+    <div id="output"></div>
 
-<div class="container">
-
-    <div class="card">
-        <button onclick="copyCmd(this, 'telnet towel.blinkenlights.nl')">1. Star Wars im Terminal</button>
-        <div class="output"></div>
+    <div class="line">
+        <span class="prompt">root@shadow:~$ </span>
+        <input id="cmd" autofocus />
     </div>
-
-    <div class="card">
-        <button onclick="copyCmd(this, 'curl ascii.live/cow')">2. ASCII Kuh mit curl</button>
-        <div class="output"></div>
-    </div>
-
-    <div class="card">
-        <button onclick="copyCmd(this, 'cmatrix')">3. Matrix Effekt</button>
-        <div class="output"></div>
-    </div>
-
-    <div class="card">
-        <button onclick="copyCmd(this, 'neofetch')">4. System Info anzeigen</button>
-        <div class="output"></div>
-    </div>
-
-    <div class="card">
-        <button onclick="copyCmd(this, 'fortune | cowsay')">5. Weisheiten mit Kuh</button>
-        <div class="output"></div>
-    </div>
-
-    <div class="card">
-        <button onclick="copyCmd(this, 'figlet \"HELLO WORLD\"')">6. ASCII Schriftzug</button>
-        <div class="output"></div>
-    </div>
-
-    <div class="card">
-        <button onclick="copyCmd(this, 'sl')">7. Falscher ls Train (Easter Egg)</button>
-        <div class="output"></div>
-    </div>
-
-    <div class="card">
-        <button onclick="copyCmd(this, 'ping google.com')">8. Netzwerk Test Ping</button>
-        <div class="output"></div>
-    </div>
-
-    <div class="card">
-        <button onclick="copyCmd(this, 'yes \"HACK THE PLANET\"')">9. Endlos Text Stream</button>
-        <div class="output"></div>
-    </div>
-
-    <div class="card">
-        <button onclick="copyCmd(this, 'export PS1=\"\\e[0;32mHACKER:\\w$ \\e[0m\"')">10. Terminal Farbe ändern</button>
-        <div class="output"></div>
-    </div>
-
 </div>
 
 <script>
-function copyCmd(btn, cmd) {
-    navigator.clipboard.writeText(cmd);
+// ---------- MATRIX EFFECT ----------
+const canvas = document.getElementById("matrix");
+const ctx = canvas.getContext("2d");
 
-    let out = btn.nextElementSibling;
-    out.innerHTML = "📋 Kopiert: <br><span style='color:#fff'>" + cmd + "</span>";
+canvas.height = window.innerHeight;
+canvas.width = window.innerWidth;
 
-    setTimeout(() => {
-        out.innerHTML = "";
-    }, 4000);
+let letters = "01HACKSHADOWTERMINAL@@##$$%%&&";
+letters = letters.split("");
+
+let fontSize = 14;
+let columns = canvas.width / fontSize;
+let drops = Array(Math.floor(columns)).fill(1);
+
+function drawMatrix() {
+    ctx.fillStyle = "rgba(0,0,0,0.05)";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    ctx.fillStyle = "#00ff9d";
+    ctx.font = fontSize + "px monospace";
+
+    for(let i=0;i<drops.length;i++) {
+        let text = letters[Math.floor(Math.random()*letters.length)];
+        ctx.fillText(text, i*fontSize, drops[i]*fontSize);
+
+        if(drops[i]*fontSize > canvas.height && Math.random() > 0.975)
+            drops[i] = 0;
+
+        drops[i]++;
+    }
 }
+setInterval(drawMatrix, 40);
+
+// ---------- TERMINAL LOGIC ----------
+const input = document.getElementById("cmd");
+const output = document.getElementById("output");
+
+function print(text) {
+    output.innerHTML += "<div class='line'>" + text + "</div>";
+    window.scrollTo(0, document.body.scrollHeight);
+}
+
+function cowsay(msg) {
+    let line = "_".repeat(msg.length);
+    return `
+<pre>
+ ${line}
+< ${msg} >
+ ${"-".repeat(msg.length)}
+        \\   ^__^
+         \\  (oo)\\_______
+            (__)\\       )\\/\\
+                ||----w |
+                ||     ||
+</pre>`;
+}
+
+function handle(cmd) {
+    print("<span style='color:#666'>root@shadow:~$</span> " + cmd);
+
+    switch(cmd.toLowerCase()) {
+
+        case "help":
+            print("Commands: help, clear, starwars, cowsay, matrix, neofetch, fortune, colors, hack, animals, secret");
+            break;
+
+        case "clear":
+            output.innerHTML = "";
+            break;
+
+        case "starwars":
+            print("Opening Star Wars...");
+            window.open("https://www.asciimation.co.nz/", "_blank");
+            break;
+
+        case "cowsay":
+            print(cowsay("HACK THE SYSTEM"));
+            break;
+
+        case "matrix":
+            print("Matrix mode already running...");
+            break;
+
+        case "neofetch":
+            print(`
+<pre>
+ShadowOS 1.0
+CPU: Quantum JS Engine
+RAM: Unlimited imagination
+Kernel: Browser-based illusion
+Uptime: 99 years (felt)
+</pre>`);
+            break;
+
+        case "fortune":
+            let quotes = [
+                "Hack the planet.",
+                "There is no spoon.",
+                "Reality is optional.",
+                "You are inside the simulation.",
+                "01010100 01001111 01001111 01010010"
+            ];
+            print(quotes[Math.floor(Math.random()*quotes.length)]);
+            break;
+
+        case "colors":
+            document.body.style.color =
+                "#" + Math.floor(Math.random()*16777215).toString(16);
+            print("Color changed.");
+            break;
+
+        case "hack":
+            print("Breaching firewall...");
+            let i = 0;
+            let interval = setInterval(()=>{
+                print("Bypassing layer " + i);
+                i++;
+                if(i > 5) {
+                    clearInterval(interval);
+                    print("ACCESS GRANTED ✔");
+                }
+            }, 400);
+            break;
+
+        case "animals":
+            let animals = ["🐱 cat", "🐶 dog", "🦊 fox", "🐸 frog", "🐼 panda"];
+            print(animals[Math.floor(Math.random()*animals.length)]);
+            break;
+
+        case "secret":
+            print("You found the hidden protocol: /shadow/unlock");
+            document.body.style.background = "#001100";
+            break;
+
+        default:
+            print("Command not found. Try 'help'");
+    }
+}
+
+input.addEventListener("keydown", function(e){
+    if(e.key === "Enter") {
+        handle(input.value);
+        input.value = "";
+    }
+});
 </script>
 
 </body>

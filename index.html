@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Shadow Terminal Hub</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+    body {
+        margin: 0;
+        font-family: 'Courier New', monospace;
+        background: radial-gradient(circle at top, #0d0d0d, #000000);
+        color: #00ff9d;
+        overflow-x: hidden;
+    }
+
+    header {
+        text-align: center;
+        padding: 40px;
+        font-size: 28px;
+        letter-spacing: 3px;
+        text-shadow: 0 0 15px #00ff9d;
+    }
+
+    .container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        padding: 20px;
+    }
+
+    .card {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(0,255,157,0.3);
+        padding: 15px;
+        border-radius: 12px;
+        backdrop-filter: blur(8px);
+        box-shadow: 0 0 20px rgba(0,255,157,0.1);
+        transition: 0.3s;
+    }
+
+    .card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 25px rgba(0,255,157,0.4);
+    }
+
+    button {
+        background: black;
+        color: #00ff9d;
+        border: 1px solid #00ff9d;
+        padding: 10px;
+        width: 100%;
+        cursor: pointer;
+        border-radius: 8px;
+        transition: 0.2s;
+    }
+
+    button:hover {
+        background: #00ff9d;
+        color: black;
+    }
+
+    .output {
+        margin-top: 10px;
+        font-size: 12px;
+        opacity: 0.8;
+        word-break: break-word;
+    }
+
+    .glow {
+        position: fixed;
+        width: 300px;
+        height: 300px;
+        background: #00ff9d;
+        filter: blur(120px);
+        top: -100px;
+        left: -100px;
+        opacity: 0.2;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="glow"></div>
+
+<header>⚡ SHADOW TERMINAL HUB ⚡</header>
+
+<div class="container">
+
+    <div class="card">
+        <button onclick="copyCmd(this, 'telnet towel.blinkenlights.nl')">1. Star Wars im Terminal</button>
+        <div class="output"></div>
+    </div>
+
+    <div class="card">
+        <button onclick="copyCmd(this, 'curl ascii.live/cow')">2. ASCII Kuh mit curl</button>
+        <div class="output"></div>
+    </div>
+
+    <div class="card">
+        <button onclick="copyCmd(this, 'cmatrix')">3. Matrix Effekt</button>
+        <div class="output"></div>
+    </div>
+
+    <div class="card">
+        <button onclick="copyCmd(this, 'neofetch')">4. System Info anzeigen</button>
+        <div class="output"></div>
+    </div>
+
+    <div class="card">
+        <button onclick="copyCmd(this, 'fortune | cowsay')">5. Weisheiten mit Kuh</button>
+        <div class="output"></div>
+    </div>
+
+    <div class="card">
+        <button onclick="copyCmd(this, 'figlet \"HELLO WORLD\"')">6. ASCII Schriftzug</button>
+        <div class="output"></div>
+    </div>
+
+    <div class="card">
+        <button onclick="copyCmd(this, 'sl')">7. Falscher ls Train (Easter Egg)</button>
+        <div class="output"></div>
+    </div>
+
+    <div class="card">
+        <button onclick="copyCmd(this, 'ping google.com')">8. Netzwerk Test Ping</button>
+        <div class="output"></div>
+    </div>
+
+    <div class="card">
+        <button onclick="copyCmd(this, 'yes \"HACK THE PLANET\"')">9. Endlos Text Stream</button>
+        <div class="output"></div>
+    </div>
+
+    <div class="card">
+        <button onclick="copyCmd(this, 'export PS1=\"\\e[0;32mHACKER:\\w$ \\e[0m\"')">10. Terminal Farbe ändern</button>
+        <div class="output"></div>
+    </div>
+
+</div>
+
+<script>
+function copyCmd(btn, cmd) {
+    navigator.clipboard.writeText(cmd);
+
+    let out = btn.nextElementSibling;
+    out.innerHTML = "📋 Kopiert: <br><span style='color:#fff'>" + cmd + "</span>";
+
+    setTimeout(() => {
+        out.innerHTML = "";
+    }, 4000);
+}
+</script>
+
+</body>
+</html>
